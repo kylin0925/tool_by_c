@@ -31,7 +31,7 @@ void init_r(){
 
         r[i]=tmp1[j][i%4];
     }
-    print_arr(r,64);
+    //print_arr(r,64);
 }
 double fabs(double d){
     return ((d<0) ? -d:d);
@@ -45,7 +45,7 @@ void init_k(){
         k[i] = (unsigned int)(fabs(t)*BIG_INT); 
     }
     //printf(" %llu \n",BIG_INT);
-    print_arr(k,64);
+    //print_arr(k,64);
 }
 void test_enc(){
     unsigned char msg[512/8]={0};
@@ -60,22 +60,22 @@ void test_enc(){
     msg[0]=0x31;   //msg
     msg[1]=1<<7;//append '1'
 
-    msg[448]=1;
+    msg[448/8]=8;
 
     for(i=0;i<16;i++)
     {
-        tmp = msg[i*4];
+        tmp = msg[i*4+3];
         w[i] = tmp<<24;
 
-        tmp = msg[i*4+1];
+        tmp = msg[i*4+2];
         w[i] += tmp<<16;
 
-        tmp = msg[i*4+2];
+        tmp = msg[i*4+1];
         w[i] += tmp<<8;
         
-        w[i] += msg[i*4+3];
+        w[i] += msg[i*4];
     }
-    print_arr(w,16);
+    //print_arr(w,16);
     for(i=0;i<64;i++){
         if( i >=0 && i<=15){
             f =  (c & b) |( (~b) & d);
@@ -93,11 +93,17 @@ void test_enc(){
             f = c ^ (b  | (~d));
             g = (i*7) %16 ;
         }
+//printf("%x %x %x %x %x\n",a,f,k[i],w[g],r[i]);
+//            printf("add %x \n",(a + f + k[i] + w[g]));
+
         tmp = d;
         d = c;
         c = b;
-        b = b +LEFTROTATE( a + f + k[i] + w[g],r[i]);
+        b = b +LEFTROTATE( (a + f + k[i] + w[g]),r[i]);
         a = tmp;
+
+        //    printf("%x %x %x %x %x\n",a,f,k[i],w[g],r[i]);
+        //    printf("%x %x %x %x g %d w[g] %x\n",a,b,c,d,g,w[g]);
     }   
     h0+=a;
     h1+=b;
